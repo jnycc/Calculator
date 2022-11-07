@@ -5,131 +5,139 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CalculatorAdvanced {
-    Logger logger = Logger.getLogger(CalculatorAdvanced.class.getName());
+    Logger logger = Logger.getLogger(CalculatorIntermediate.class.getName());
 
-    public CalculatorAdvanced() {
-    }
-
-    //Idee 1: elke character inlezen totdat het niet een getal is, dit getal opslaan in list, de operator ook opslaan in list, doorlezen
-    //Idee 2: String splitten obv de operators. Elk element (if getal -> parsen en opslaan in list, else if operator -> operator opslaan in list).
-    //TODO: meerdere + veranderen in 1 +. Meerdere - veranderen in 1 - of +.
-    //TODO: Is +- toegestaan?
-    //TODO: voorrang * en /
+    //Tokenizer: lexer - split alles wat geen getal of operator is: lijst van tokens. Omzetten in een abstract syntax tree: structuur om te bepalen welke operator bij welk getal is, subsom uitvoeren.
     public void start() {
-        System.out.print("Welcome to TI-001 Calculator! Let us do the math for you.\n\n");
+        System.out.print("Welcome to TI-001 Advanced Calculator! Let us do the math for you.\n\n");
         final Scanner scanner = new Scanner(System.in);
-        String[] numbers = new String[0];
+        String[] tokens = new String[0];
         String[] operators = new String[0];
-        try {
-            System.out.print("Enter your calculation: ");
-//            String input = scanner.nextLine().replaceAll("\\s+|[\\s-+*/]+$", ""); // remove whitespaces and trailing whitespaces+operators
-            String input = scanner.nextLine().replaceAll("\\s", ""); // remove whitespaces and trailing whitespaces+operators
-            validateInput(input);
-            System.out.println("--After regex: " + input);
-            numbers = input.split("[-+*/]+");
-            System.out.println("--Split String[] numbers: " + Arrays.toString(numbers));
 
-            operators = input.split("[^-+*/]+");
-            operators = cleanOperators(operators);
+        boolean inputValid = false;
+        while (!inputValid) {
+            try {
+                System.out.print("Enter your calculation: ");
+                String input = scanner.nextLine().replaceAll("\\s", "");
+                inputValid = validateInput(input);
+                if (!inputValid) {
+                    throw new InputMismatchException("Syntax error. Input does not meet regex pattern.");
+                }
+                tokens = input.split("(?=[-/*()])|([+])|(?<=[*/()])");
+                System.out.println("--Tokens String[]: " + Arrays.toString(tokens));
 
-            System.out.println("--Split String[] operators: " + Arrays.toString(operators));
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.print("Syntax error. Only whole numbers are accepted in this version (e.g. 10). " +
-                    "\nPlease enter a valid and correctly formatted mathematical calculation: ");
-            scanner.nextLine();
+//                operators = input.split("[^-+*/]+");
+//                operators = cleanOperators(operators);
+//                System.out.println("--Split String[] operators: " + Arrays.toString(operators));
+            } catch (Exception e) {
+//                e.printStackTrace();
+                System.out.println("Syntax error. Please enter a valid and correctly formatted mathematical calculation.");
+            }
         }
 //        scanner.close();
 
-        final int[] parsedNumbers = parseNumbers(numbers);
-        final int result = feedCalculator(parsedNumbers, operators);
-        printMath(parsedNumbers, operators);
+//        final int[] parsedNumbers = parseNumbers(numbers);
+//        final int result = feedCalculator(parsedNumbers, operators);
+//        printMath(parsedNumbers, operators);
+
+        final int result = calculate(Arrays.asList(tokens));
         System.out.println("Result: " + result);
     }
 
-    private void validateInput(String input) {
-//        boolean validNumbers = false;
-//        boolean validOperators = false;
+    private boolean validateInput(String input) {
+        boolean inputValid = false;
         //Mag starten met meerdere - of + gevolgd door getal.
         //Mag daarna meerdere - of + bevatten maar niet gecombineerd +-.
         //Meerdere * of / niet toegestaan.
-        if (input.matches("^(-*|\\+*)\\d+((\\++|-+|[*/]{1})\\d)*")) {
+        if (input.matches("^(-*|\\+*)\\d+((\\++|-+|[*/]{1})\\d+)*")) {
+            inputValid = true;
             logger.log(Level.INFO, "Input is valid.");
-        } else {
-            throw new InputMismatchException("Syntax error. Input does not meet regex pattern.");
         }
-
-//        String[] operators = input.split("[^-+*/]+");
-//        for (String operator : operators) {
-//            if (operator.matches("-+|\\++|\\*{1}|/{1}")) {
-//                validOperators = true;
-//            }
-//
-//        }
-/*        System.out.println("Split string[] operators again: " + Arrays.toString(operators));
-//        for (String operator : operators) {
-        int i = 0;
-        while (i < operators.length && validOperators == false) {
-            if (operators.length() > 1) {
-                //String met meervoudige operators veranderen in charArray en hierdoorheen loopen
-                char[] operatorArray = operator.toCharArray();
-                System.out.println("operatorArray" + Arrays.toString(operatorArray));
-                for (char item : operatorArray) {
-*//*                if (item == operatorArray[0]) {
-                    validOperators = false;
-                    break;*//*
-
-                    if (item != operatorArray[0]) { // meervoudige operators (e.g. ---) moeten hetzelfde zijn, (+-) niet toegestaan.
-                        validOperators = true;
-                    } else {
-                        validOperators = false;
-                    }
-                }
-            }
-        }*/
+        return inputValid;
     }
 
-    public int[] parseNumbers(String[] numbers) {
-        final int[] parsedNumbers = new int[numbers.length];
-        for (int i = 0; i < numbers.length; i++) {
-            if (!numbers[i].equals("")) {
-                parsedNumbers[i] = Integer.parseInt(numbers[i]);
-            }
+    private int calculate(List<String> tokens) {
+        int result;
+        if (tokens.size() < 2) { //need at least 2 digits to do a calculation
+            return Integer.parseInt(tokens.get(0));
         }
-        System.out.println("--Parsed int[] numbers: " + Arrays.toString(parsedNumbers));
-        return parsedNumbers;
+        //Example Tokens: [, 5, -5, 3, 1, , (, 2, -2, ), -, -8, *, 7, /, 3]
+        if (tokens.get(0).isBlank()) { //should only occur if first digit has a + (e.g. +5) which gives an empty element after splitting
+            tokens.set(0, "0");
+        }
+        tokens = cleanOperators(tokens);
+        System.out.println("Tokens after cleanOperators: " + tokens);
+        tokens = multiplyDivide(tokens);
+        System.out.println("Tokens after multipleDivide: " + tokens);
+        result = addSubtract(tokens);
+        return result;
     }
 
-    private String[] cleanOperators(String[] operators) {
-        int countNonEmptyOperators = 0;
-        for (String operator : operators) {
-            if (!operator.equals("")) {
-                countNonEmptyOperators++;
+    private List<String> cleanOperators(List<String> tokens) {
+        List<String> cleanedTokens = new ArrayList<>();
+        int count = 0;
+        for (int i = 0; i < tokens.size(); i++) {
+            if (tokens.get(i).equals("-")) {
+                count++;
+                String nextToken = tokens.get(i + 1);
+                if (!nextToken.equals("-")) {
+                    int multiplier = (count % 2 == 0) ? +1 : -1;
+                    nextToken = String.valueOf(multiplier * Integer.parseInt(nextToken));
+                    cleanedTokens.add(nextToken);
+                    i++;
+                }
+            } else if (!tokens.get(i).isBlank()) { // multiple +++ splits into an empty element which we want to omit
+                cleanedTokens.add(tokens.get(i));
             }
         }
-        String[] cleanedOperators = new String[countNonEmptyOperators];
-        int i = 0;
-        for (String operator : operators) {
-            if (!operator.equals("")) {
-                if (operator.matches("\\++")) {
-                    operator = "+";
-                } else if (operator.matches("-+")) {
-                    if (operator.length() % 2 == 0) {
-                        operator = "+";
-                    } else {
-                        operator = "-";
-                    }
-                }
+        return cleanedTokens;
+    }
 
-                cleanedOperators[i] = operator;
+    private int addSubtract(List<String> tokens) {
+        //Example Tokens: [5, -5, 3, 1]
+        if (tokens.size() < 2) {
+            return Integer.parseInt(tokens.get(0));
+        }
+        int result = Integer.parseInt(tokens.get(0)) + Integer.parseInt(tokens.get(1));
+        for (int i = 1; i < tokens.size() - 1; i++) {
+            result += Integer.parseInt(tokens.get(i + 1));
+        }
+        return result;
+    }
+
+    private List<String> multiplyDivide(List<String> tokens) {
+        final List<String> newTokens = new ArrayList<>();
+        int j = -1;
+        for (int i = 0; i < tokens.size(); i++) {
+            if (tokens.get(i).equals("*")) {
+                int result = Integer.parseInt(newTokens.get(j)) * Integer.parseInt(tokens.get(i + 1));
+                newTokens.set(j, String.valueOf(result));
                 i++;
+            } else if (tokens.get(i).equals("/")) {
+                int result = Integer.parseInt(newTokens.get(j)) / Integer.parseInt(tokens.get(i + 1));
+                newTokens.set(j, String.valueOf(result));
+                i++;
+            } else { // if it is a number, + or -
+                newTokens.add(tokens.get(i));
+                j++;
             }
+            System.out.println("NewTokens: " + newTokens);
         }
-        return cleanedOperators;
+        return newTokens;
     }
 
+    public boolean isNumeric(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+/*
     public int feedCalculator(int[] numbers, String[] operators) {
-        int result = calculate(numbers[0], numbers[1], operators[0]);
+        int result = numbers.length == 1 ? numbers[0] : calculate(numbers[0], numbers[1], operators[0]);
         for (int i = 1; i < numbers.length - 1; i++) {
             result = calculate(result, numbers[i + 1], operators[i]);
         }
@@ -145,7 +153,7 @@ public class CalculatorAdvanced {
             case ("/") -> result = numberOne / numberTwo;
         }
         return result;
-    }
+    }*/
 
     private static void printMath(int[] numbers, String[] operators) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -158,5 +166,4 @@ public class CalculatorAdvanced {
         stringBuilder.append(numbers[numbers.length - 1]);
         System.out.println("Calculation of: " + stringBuilder);
     }
-
 }
