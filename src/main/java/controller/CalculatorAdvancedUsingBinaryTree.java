@@ -1,58 +1,55 @@
 package controller;
 
+import lexer.Lexer;
+import lexer.Token;
+import parser.Node;
+import parser.Parser;
+
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CalculatorAdvanced {
+public class CalculatorAdvancedUsingBinaryTree {
     Logger logger = Logger.getLogger(CalculatorIntermediate.class.getName());
+    Lexer lexer = new Lexer();
 
-    //Tokenizer: lexer - split alles wat geen getal of operator is: lijst van tokens. Omzetten in een abstract syntax tree: structuur om te bepalen welke operator bij welk getal is, subsom uitvoeren.
     public void start() {
-        System.out.print("Welcome to TI-001 Advanced Calculator! Let us do the math for you.\n\n");
+        System.out.print("Welcome to TI-002 Advanced Calculator! Let us do the math for you.\n\n");
         final Scanner scanner = new Scanner(System.in);
-        String[] tokens = new String[0];
+        List<Token> tokens;
 
         boolean inputValid = false;
         while (!inputValid) {
             try {
                 System.out.print("Enter your calculation: ");
-                String input = scanner.nextLine().replaceAll("\\s", "");
+                String input = scanner.nextLine();
                 inputValid = validateInput(input);
                 if (!inputValid) {
                     throw new InputMismatchException("Syntax error. Input does not meet regex pattern.");
                 }
-                tokens = input.split("(?=[-/*()])|([+])|(?<=[*/()])");
-                System.out.println("--Tokens String[]: " + Arrays.toString(tokens));
-
-//                operators = input.split("[^-+*/]+");
-//                operators = cleanOperators(operators);
-//                System.out.println("--Split String[] operators: " + Arrays.toString(operators));
+                tokens = lexer.lex(input);
+                Node lastNode = new Parser(tokens).parse();
+                final Double result = lastNode.compute();
+                System.out.println("Result: " + result);
             } catch (Exception e) {
-//                e.printStackTrace();
+                e.printStackTrace();
                 System.out.println("Syntax error. Please enter a valid and correctly formatted mathematical calculation.");
             }
         }
 //        scanner.close();
-
-//        final int[] parsedNumbers = parseNumbers(numbers);
-//        final int result = feedCalculator(parsedNumbers, operators);
 //        printMath(parsedNumbers, operators);
-
-        final int result = calculate(Arrays.asList(tokens));
-        System.out.println("Result: " + result);
     }
 
     private boolean validateInput(String input) {
-        boolean inputValid = false;
+        boolean inputValidity = false;
         //Mag starten met meerdere - of + gevolgd door getal.
         //Mag daarna meerdere - of + bevatten maar niet gecombineerd +-.
         //Meerdere * of / niet toegestaan.
         if (input.matches("^(-*|\\+*)\\d+((\\++|-+|[*/]{1})\\d+)*")) {
-            inputValid = true;
+            inputValidity = true;
             logger.log(Level.INFO, "Input is valid.");
         }
-        return inputValid;
+        return inputValidity;
     }
 
     private int calculate(List<String> tokens) {
@@ -133,26 +130,6 @@ public class CalculatorAdvanced {
             return false;
         }
     }
-
-/*
-    public int feedCalculator(int[] numbers, String[] operators) {
-        int result = numbers.length == 1 ? numbers[0] : calculate(numbers[0], numbers[1], operators[0]);
-        for (int i = 1; i < numbers.length - 1; i++) {
-            result = calculate(result, numbers[i + 1], operators[i]);
-        }
-        return result;
-    }
-
-    public int calculate(int numberOne, int numberTwo, String operator) {
-        int result = 0;
-        switch (operator) {
-            case ("+") -> result = numberOne + numberTwo;
-            case ("-") -> result = numberOne - numberTwo;
-            case ("*") -> result = numberOne * numberTwo;
-            case ("/") -> result = numberOne / numberTwo;
-        }
-        return result;
-    }*/
 
     private static void printMath(int[] numbers, String[] operators) {
         StringBuilder stringBuilder = new StringBuilder();

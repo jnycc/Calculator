@@ -6,7 +6,10 @@ public class CalculatorLauncher {
 //        new Calculator().startWithScanner();
 //        new Calculator().startWithConsole();
 //        new CalculatorIntermediate().start();
-        new CalculatorAdvanced().start();
+//        new CalculatorAdvanced().start();
+        new CalculatorAdvancedUsingBinaryTree().start();
+
+
 //        new Experimental().startExperiment();
 
     }
