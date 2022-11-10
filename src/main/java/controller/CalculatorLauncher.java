@@ -1,5 +1,7 @@
 package controller;
 
+import exception.CalculatorException;
+
 public class CalculatorLauncher {
 
     public static void main(String[] args) {
@@ -7,12 +9,14 @@ public class CalculatorLauncher {
 //        new Calculator().startWithConsole();
 //        new CalculatorIntermediate().start();
 //        new CalculatorAdvanced().start();
-        new CalculatorAdvancedUsingBinaryTree().start();
 
+        CalculatorAdvancedUsingBinaryTree calculator = new CalculatorAdvancedUsingBinaryTree();
+        System.out.print("Welcome to TI-002-Advanced Calculator! Let us do the math for you.\n\n");
+        while (true) {
+            calculator.start();
+        }
+//        new Experiments().startExperiment();
 
-//        new Experimental().startExperiment();
 
     }
-
-
 }
