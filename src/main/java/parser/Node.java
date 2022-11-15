@@ -12,29 +12,31 @@ public class Node {
     public Token token;
     public Node leftChild;
     public Node rightChild;
+    public boolean isBracketed;
 
-    public Node(Node leftChild, Token token, Node rightChild) {
+    public Node(Node leftChild, Token token, Node rightChild, boolean isBracketed) {
         this.leftChild = leftChild;
         this.token = token;
         this.rightChild = rightChild;
+        this.isBracketed = isBracketed;
     }
 
     public static Node createLeaf(final Token token) {
         if (token.getType() != Token.Type.NUMBER) {
-            throw new CalculatorException("Can only create leaf-nodes with numbers as value.");
+            throw new CalculatorException("Can only create leaf-nodes with numbers as value. Received '" + token + "'.");
         }
-        return new Node(null, token, null);
+        return new Node(null, token, null, false);
     }
 
-    public static Node createNode(final Node leftChild, final Token token, final Node rightChild) {
+    public static Node createNode(final Node leftChild, final Token token, final Node rightChild, final boolean isBracketed) {
         if (token.getType() != Token.Type.OPERATOR) {
             throw new CalculatorException("Can only create regular nodes with operators as value.");
         }
-        return new Node(leftChild, token, rightChild);
+        return new Node(leftChild, token, rightChild, isBracketed);
     }
 
     public Node replaceRightChild(Node lastNode, OperatorToken operator, Node rightGrandChild) {
-        lastNode.rightChild = createNode(lastNode.rightChild, operator, rightGrandChild);
+        lastNode.rightChild = createNode(lastNode.rightChild, operator, rightGrandChild, false);
         return lastNode;
     }
 
@@ -70,4 +72,15 @@ public class Node {
         int thatOperatorPriority = thatToken.getOperator().getPriority(); //receives the nextNode from the Parser
         return thisOperatorPriority - thatOperatorPriority < 0;
         }
+
+    public Token getToken() {
+        return token;
+    }
+
+    /**
+     * @return a copy of the same node but with the isBracketed value to true.
+     */
+    public Node makeBracketed() {
+        return new Node(leftChild, token, rightChild, true);
+    }
 }

@@ -43,7 +43,7 @@ public class Operator implements DoubleBinaryOperator{
     }
 
     @Override
-//note that we implement this method using the already anonymously implemented method within variable operation (see lambdas in List<Operator>).
+    //note that we implement this method using the already anonymously implemented method within variable operation (see lambdas in List<Operator>).
     public double applyAsDouble(double left, double right) {
         return operation.applyAsDouble(left, right);
     }

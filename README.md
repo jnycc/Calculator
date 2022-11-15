@@ -17,3 +17,8 @@ In this project a simple CLI calculator has been created. For practice purposes,
   - Support prioritization for multiplication and divisions (PEMDAS)
   - Support rational numbers (i.e. decimals)
   - Experiment with different structures (tokenization, parsing into lists or trees)
+
+- **Version 4 - Advancedv2**: Use an Abstract Syntax Tree (in this case a binary tree) as data structure.
+  - Previous versions used simple Lists of tokens (numbers, operators) to store the data. Implement it using a binary tree where the nodes are linked/refer to each other.
+  - Create an own lexer and parser instead of splitting with regexes.
+  - Include custom exception handling responses.

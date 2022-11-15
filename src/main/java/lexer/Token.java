@@ -3,7 +3,8 @@ package lexer;
 public class Token {
     public enum Type {
         NUMBER,
-        OPERATOR
+        OPERATOR,
+        BRACKET
     }
 
     private final Type type;
@@ -18,6 +19,7 @@ public class Token {
         return switch (type) {
             case NUMBER -> new NumberToken(input, index);
             case OPERATOR -> new OperatorToken(input, index);
+            case BRACKET -> new BracketToken(input, index);
         };
     }
 

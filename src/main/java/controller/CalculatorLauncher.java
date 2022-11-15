@@ -10,8 +10,8 @@ public class CalculatorLauncher {
 //        new CalculatorIntermediate().start();
 //        new CalculatorAdvanced().start();
 
-        CalculatorAdvancedUsingBinaryTree calculator = new CalculatorAdvancedUsingBinaryTree();
-        System.out.print("Welcome to TI-002-Advanced Calculator! Let us do the math for you.\n\n");
+        CalculatorAdvancedUsingBinaryTree calculator = new CalculatorAdvancedUsingBinaryTree(System.in, System.out);
+        System.out.print("Welcome to Texas Instruments-003 Advanced Calculator! Let us do the math for you.\n\n");
         while (true) {
             calculator.start();
         }
