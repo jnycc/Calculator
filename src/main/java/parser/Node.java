@@ -51,7 +51,8 @@ public class Node {
         return operation.applyAsDouble(leftValue, rightValue);
     }
 
-/*    public double compute() {
+/* Older version of compute method using only one generic Token class.
+    public double compute() {
         System.out.printf("Current token at index [%d]: %s%n", token.getIndex(), token.getValue());
         if (leftChild == null) { // A node consisting of leftChild, token, rightChild should always have a leftChild, unless it is a leaf (a number without children).
             return Double.parseDouble(token.getValue());

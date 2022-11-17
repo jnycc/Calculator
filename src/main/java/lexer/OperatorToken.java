@@ -15,6 +15,6 @@ public class OperatorToken extends Token {
 
     @Override
     public String toString() {
-        return operator.value;
+        return operator.getValue();
     }
 }

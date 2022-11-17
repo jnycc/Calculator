@@ -24,9 +24,6 @@ public class CalculatorAdvancedUsingBinaryTree {
         this.lexer = new Lexer();
     }
 
-//    public void start() {
-//        start(System.in, System.out);
-//    }
 
     public void start() {
         final Scanner scanner = new Scanner(inputStream);
@@ -40,20 +37,19 @@ public class CalculatorAdvancedUsingBinaryTree {
 //                throw new CalculatorException("empty");
 //            }
             tokens = lexer.lex(input);
-            if (tokens.size() < 0) {
+            if (tokens.size() < 1) {
                 return;
             }
             Node lastNode = new Parser(tokens).parse();
             final double result = lastNode.compute();
             outputStream.println("Result: " + result);
             scanner.reset();
-        } catch (CalculatorException e) {
+        } catch (CalculatorException | NoSuchElementException e) {
             outputStream.println(e.getMessage() + " Please enter a valid and correctly formatted mathematical expression.");
 //                e.printStackTrace();
         }
 //        }
 //        scanner.close();
-//        printMath(parsedNumbers, operators);
     }
 
     private void validateInput(String input) {
@@ -63,18 +59,7 @@ public class CalculatorAdvancedUsingBinaryTree {
         if (!input.matches("^(-*|\\+*)\\d+\\.?\\d*\\s*(\\s*(\\++|-+|[*/]{1})\\s*\\d+\\.?\\d*)*")) {
             throw new CalculatorException("Syntax error (input does not meet regex pattern).");
         }
-//            logger.log(Level.INFO, "Input is valid.");
+            logger.log(Level.INFO, "Input is valid.");
     }
 
-    private static void printMath(int[] numbers, String[] operators) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < operators.length; i++) {
-            stringBuilder.append(numbers[i])
-                    .append(" ")
-                    .append(operators[i])
-                    .append(" ");
-        }
-        stringBuilder.append(numbers[numbers.length - 1]);
-        System.out.println("Calculation of: " + stringBuilder);
-    }
 }

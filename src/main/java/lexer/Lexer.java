@@ -10,6 +10,7 @@ public class Lexer {
 
     /**
      * Transforms the received input into a list of tokens (numbers, operators, brackets) which can be parsed further.
+     *
      * @param input the mathematical calculation as entered by the user.
      * @return list of tokens (numbers, operators, brackets).
      */
@@ -28,7 +29,7 @@ public class Lexer {
             // If - or + follows an open bracket e.g. (-1) OR
             // If *- or /- (e.g. 5*-5), then the - is part of a number and not an operator.
             if (characterType == Token.Type.OPERATOR &&
-                    (lastParsedType == null || characters.get(i-1) == '(' || characterType == lastParsedType)) {
+                    (lastParsedType == null || characters.get(i - 1) == '(' || characterType == lastParsedType)) {
                 characterType = Token.Type.NUMBER;
             }
             // Expected order of tokens is always number, operator, number (123+4*5).
@@ -75,6 +76,7 @@ public class Lexer {
 
     /**
      * Creates a new List of Characters which excludes whitespaces and simplifies operators into one character (or two if the second is - for a negative number).
+     *
      * @param input: the mathematical calculation as entered by the user.
      * @return List of Characters of the mathematical calculation with simplified operators, excluding whitespaces.
      */
@@ -89,29 +91,32 @@ public class Lexer {
         Character lastAddedCharacter;
         for (int i = 0; i < characters.size(); i++) {
             character = characters.get(i);
+            if (Character.isWhitespace(character)) {
+                continue;
+            }
+
             if (i == 0) {
                 cleanedCharacters.add(character);
                 continue;
             }
-            if (!Character.isWhitespace(character)) {
-                lastAddedCharacter = cleanedCharacters.get(cleanedCharacters.size() - 1);
-                if (character.equals('+')) {
-                    if (!lastAddedCharacter.equals('+') && !lastAddedCharacter.equals('-')) { // Don't add + if ++ or -+.
-                        cleanedCharacters.add(character);
-                    }
-                } else if (character.equals('-')) { // If -- replace previousChar with +. If +- replace previousChar with -.
-                    switch (lastAddedCharacter) {
-                        case ('-') -> cleanedCharacters.set(cleanedCharacters.size() - 1, '+');
-                        case ('+') -> cleanedCharacters.set(cleanedCharacters.size() - 1, '-');
-                        default -> cleanedCharacters.add(character);
-                    }
-                } else if ((character.equals('*') || character.equals('/')) && !Character.isDigit(lastAddedCharacter) && lastAddedCharacter != ')') {
-                    throw new CalculatorException("Syntax Error. Operators '*' and '/' can not be preceded by anything else other than a number.");
-                } else {
+            lastAddedCharacter = cleanedCharacters.get(cleanedCharacters.size() - 1);
+            if (character.equals('+')) {
+                if (!lastAddedCharacter.equals('+') && !lastAddedCharacter.equals('-')) { // Don't add + if ++ or -+.
                     cleanedCharacters.add(character);
                 }
+            } else if (character.equals('-')) { // If -- replace previousChar with +. If +- replace previousChar with -.
+                switch (lastAddedCharacter) {
+                    case ('-') -> cleanedCharacters.set(cleanedCharacters.size() - 1, '+');
+                    case ('+') -> cleanedCharacters.set(cleanedCharacters.size() - 1, '-');
+                    default -> cleanedCharacters.add(character);
+                }
+            } else if ((character.equals('*') || character.equals('/')) && !Character.isDigit(lastAddedCharacter) && lastAddedCharacter != ')') {
+                throw new CalculatorException("Syntax Error. Invalid usage of operators '*' and '/'.");
+            } else {
+                cleanedCharacters.add(character);
             }
         }
+
 //        System.out.println("Cleaned characters: " + cleanedCharacters);
         return cleanedCharacters;
     }

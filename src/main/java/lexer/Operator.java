@@ -5,7 +5,7 @@ import java.util.function.DoubleBinaryOperator;
 
 public class Operator implements DoubleBinaryOperator{
 
-    public final String value;
+    private final String value;
     private final int priority;
     private final DoubleBinaryOperator operation;
 
@@ -54,5 +54,9 @@ public class Operator implements DoubleBinaryOperator{
 
     public DoubleBinaryOperator getOperation() {
         return operation;
+    }
+
+    public String getValue() {
+        return value;
     }
 }
